@@ -1,0 +1,64 @@
+import java.util.ArrayList; 
+import java.util.Arrays; 
+import java.util.Scanner;
+
+public class ResourceAllocationAlgorithm {
+    int[][] maximumResources; 
+    int[][] allocatedResources; 
+    int[][] requiredResources;
+    int[] availableResources; 
+    int processCount; 
+    int resourceCount;
+
+    public ResourceAllocationAlgorithm(int[][] maximumResources, int[][] allocatedResources, int[] availableResources) {
+        this.maximumResources = maximumResources; 
+        this.allocatedResources = allocatedResources; 
+        this.availableResources = availableResources; 
+        processCount = maximumResources.length;
+        resourceCount = availableResources.length;
+        requiredResources = new int[processCount][resourceCount];
+
+        // Calculate the need matrix
+        for (int i = 0; i < processCount; i++) {
+            for (int j = 0; j < resourceCount; j++) { 
+                requiredResources[i][j] = maximumResources[i][j] - allocatedResources[i][j];
+            }
+        }
+    }
+
+    public boolean isSafeState() {
+        int[] work = Arrays.copyOf(availableResources, resourceCount);
+        boolean[] finish = new boolean[processCount];
+
+        int count = 0;
+        while (count < processCount) {
+            boolean found = false;
+            for (int i = 0; i < processCount; i++) {
+                if (!finish[i]) {
+                    boolean canAllocate = true;
+                    for (int j = 0; j < resourceCount; j++) {
+                        if (requiredResources[i][j] > work[j]) { 
+                            canAllocate = false; 
+                            break;
+                        }
+                    }
+
+                    if (canAllocate) {
+                        for (int j = 0; j < resourceCount; j++) { 
+                            work[j] += allocatedResources[i][j];
+                        }
+                        finish[i] = true; 
+                        count++;
+                        found = true;
+                    }
+                }
+            }
+
+            if (found)
+                continue;
+            else
+                break;
+        }
+        return count == processCount;
+    }
+}
