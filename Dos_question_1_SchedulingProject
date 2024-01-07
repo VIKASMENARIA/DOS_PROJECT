@@ -1,0 +1,219 @@
+import java.util.Scanner;
+
+public class DosProject1 {
+
+    public static void main(String[] args) {
+        Scanner inputScanner = new Scanner(System.in);
+        boolean isFirstComeFirstServeChosen = false;
+
+        while (true) {
+            System.out.println();
+            System.out.println("Choose the scheduling algorithm:");
+            System.out.println("1. First-Come, First-Served (FCFS)");
+            System.out.println("2. Round Robin (RR)");
+            System.out.println("3. Terminate Program");
+            int userChoice = inputScanner.nextInt();
+
+            switch (userChoice) {
+                case 1:
+                    if (!isFirstComeFirstServeChosen) {
+                        firstComeFirstServeAlgorithm(inputScanner);
+                        isFirstComeFirstServeChosen = true;
+                    } else {
+                        roundRobinAlgorithm(inputScanner);
+                    }
+                    break;
+                case 2:
+                    roundRobinAlgorithm(inputScanner);
+                    break;
+                case 3:
+                    System.out.println("Terminating the program...");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        }
+    }
+    private static void firstComeFirstServeAlgorithm(Scanner inputScanner) {
+    System.out.print("Enter the number of processes: ");
+    int processCount = inputScanner.nextInt();
+
+    int burstDurations[] = new int[processCount];
+    int arrivalMoments[] = new int[processCount];
+
+    System.out.println("\nEnter the Burst Time for each process.");
+    for (int index = 0; index < processCount; index++) {
+        System.out.print("\nFor Process " + (index + 1) + ": ");
+        burstDurations[index] = inputScanner.nextInt();
+    }
+
+    System.out.println("\nEnter the arrival time for each process.");
+    for (int index = 0; index < processCount; index++) {
+        System.out.print("\nFor Process " + (index + 1) + ": ");
+        arrivalMoments[index] = inputScanner.nextInt();
+    }
+    calculateAndDisplayTimes(processCount, burstDurations, arrivalMoments);
+}
+
+private static void roundRobinAlgorithm(Scanner inputScanner) {
+    System.out.print("Enter the number of processes: ");
+    int processCount = inputScanner.nextInt();
+
+    int processIds[] = new int[processCount];
+    int burstDurations[] = new int[processCount];
+    int arrivalMoments[] = new int[processCount];
+
+    for (int index = 0; index < processCount; index++) {
+        System.out.print("Enter burst time for process " + (index + 1) + ": ");
+        burstDurations[index] = inputScanner.nextInt();
+        processIds[index] = index + 1;
+    }
+    for (int index = 0; index < processCount; index++) {
+        System.out.print("Enter arrival time for process " + (index + 1) + ":");
+        arrivalMoments[index] = inputScanner.nextInt();
+    }
+
+    System.out.print("Enter the time quantum: ");
+    int timeQuantum = inputScanner.nextInt();
+
+    findAverageTime(processIds, processCount, burstDurations, timeQuantum, arrivalMoments);
+}
+
+private static void calculateAndDisplayTimes(int processCount, int[] burstDurations, int[] arrivalMoments) {
+    int waitingTimes[] = new int[processCount];
+    int responseTimes[] = new int[processCount];
+    int completionTimes[] = new int[processCount];
+}
+waitingTimes[0] = 0;
+completionTimes[0] = burstDurations[0];
+
+for (int index = 1; index < processCount; index++) {
+    waitingTimes[index] = completionTimes[index - 1] - arrivalMoments[index];
+    if (waitingTimes[index] < 0) {
+        waitingTimes[index] = 0;
+    }
+    responseTimes[index] = waitingTimes[index];
+    completionTimes[index] = completionTimes[index - 1] + burstDurations[index];
+}
+
+System.out.println("\nProcesses || Burst Time || Arrival Time || Waiting Time || Response Time || Completion Time ");
+
+float averageWaitingTime = 0;
+float averageResponseTime = 0;
+float averageTurnaroundTime = 0;
+
+for (int index = 0; index < processCount; index++) {
+    System.out.println((index + 1) + "\t ||\t" + burstDurations[index] + "\t||\t" + arrivalMoments[index] + "\t||\t" + waitingTimes[index] + "\t||\t "
+    + responseTimes[index] + "\t||\t " + completionTimes[index]);
+    averageWaitingTime += waitingTimes[index];
+    averageResponseTime += responseTimes[index];
+    averageTurnaroundTime += (completionTimes[index] - arrivalMoments[index]);
+}
+averageWaitingTime = averageWaitingTime / processCount;
+averageResponseTime = averageResponseTime / processCount;
+averageTurnaroundTime = averageTurnaroundTime / processCount;
+System.out.println("\nAverage waiting time = " + averageWaitingTime);
+System.out.println("\nAverage response time = " + averageResponseTime);
+System.out.println("\nAverage turnaround time = " + averageTurnaroundTime);
+}
+
+static void findAverageTime(int processIds[], int processCount, int burstDurations[],
+int timeQuantum, int arrivalMoments[]) {
+int waitingTimes[] = new int[processCount], turnaroundTimes[] = new int[processCount], completionTimes[] = new int[processCount], responseTimes[] = new int[processCount];
+double totalWaitingTime = 0, totalTurnaroundTime = 0, totalResponseTime = 0;
+
+findWaitingTime(processIds, processCount, burstDurations, waitingTimes, timeQuantum, arrivalMoments, completionTimes, responseTimes);
+findTurnAroundTime(processIds, processCount, burstDurations, waitingTimes, turnaroundTimes, completionTimes, arrivalMoments);
+
+System.out.println("Processes " + " Burst time " + " Waiting time " + " Turnaround time " + " Response time");
+
+for (int index = 0; index < processCount; index++) {
+    totalWaitingTime += waitingTimes[index];
+    totalTurnaroundTime += turnaroundTimes[index];
+}
+totalResponseTime += responseTimes[index];
+System.out.println(" " + processIds[index] + "\t\t" + burstDurations[index] + "\t " + waitingTimes[index] + "\t\t " + turnaroundTimes[index] + "\t\t " + responseTimes[index]);
+}
+
+System.out.println("Average waiting time = " + totalWaitingTime / processCount);
+System.out.println("Average turnaround time = " + totalTurnaroundTime / processCount);
+System.out.println("Average response time = " + totalResponseTime / processCount);
+
+// Compare the efficiency of algorithms based on average waiting time
+compareAlgorithmsEfficiency(totalWaitingTime / processCount, calculateFirstComeFirstServeAverageWaitingTime(burstDurations, arrivalMoments));
+
+}
+
+static void findWaitingTime(int processIds[], int processCount, int burstDurations[], int waitingTimes[], int timeQuantum, int arrivalMoments[], int completionTimes[], int responseTimes[]) {
+int remainingBurstTimes[] = new int[processCount]; 
+for (int index = 0; index < processCount; index++)
+    remainingBurstTimes[index] = burstDurations[index];
+
+int time = 0;
+boolean isVisited[] = new boolean[processCount];
+
+while (true) {
+    boolean isDone = true;
+
+    for (int index = 0; index < processCount; index++) {
+        if (remainingBurstTimes[index] > 0 && arrivalMoments[index] <= time) { 
+            isDone = false;
+
+            if (!isVisited[index]) {
+                responseTimes[index] = time - arrivalMoments[index]; 
+                isVisited[index] = true;
+            }
+
+            if (remainingBurstTimes[index] > timeQuantum) { 
+                time += timeQuantum; 
+                remainingBurstTimes[index] -= timeQuantum;
+            } else {
+                time += remainingBurstTimes[index];
+                waitingTimes[index] = time - burstDurations[index] - arrivalMoments[index]; 
+                remainingBurstTimes[index] = 0;
+                completionTimes[index] = time;
+            }
+        }
+    }
+}
+if (isDone)
+    break;
+}
+
+static void findTurnaroundTime(int processIds[], int processCount, int burstDurations[], int waitingTimes[], int turnaroundTimes[], int completionTimes[], int arrivalMoments[]) {
+    for (int index = 0; index < processCount; index++)
+        turnaroundTimes[index] = completionTimes[index] - arrivalMoments[index];
+}
+
+static double calculateFirstComeFirstServeAverageWaitingTime(int[] burstDurations, int[] arrivalMoments) {
+    int processCount = burstDurations.length;
+    int waitingTimes[] = new int[processCount]; 
+    int completionTimes[] = new int[processCount];
+
+    int previousCompletionTime = 0;
+    for (int index = 0; index < processCount; index++) {
+        waitingTimes[index] = previousCompletionTime - arrivalMoments[index];
+        if (waitingTimes[index] < 0) { 
+            waitingTimes[index] = 0;
+        }
+        completionTimes[index] = previousCompletionTime + burstDurations[index]; 
+        previousCompletionTime = completionTimes[index];
+    }
+
+    double totalWaitingTime = 0;
+    for (int index = 0; index < processCount; index++) { 
+        totalWaitingTime += waitingTimes[index];
+    }
+    return totalWaitingTime / processCount;
+}
+
+static void compareAlgorithmsEfficiency(double averageWaitingTimeRoundRobin, double averageWaitingTimeFirstComeFirstServe) {
+    if (averageWaitingTimeRoundRobin < averageWaitingTimeFirstComeFirstServe) {
+        System.out.println("Round Robin (RR) algorithm results in the minimum average waiting time = "+averageWaitingTimeRoundRobin);
+    } else if (averageWaitingTimeRoundRobin > averageWaitingTimeFirstComeFirstServe) {
+        System.out.println("FCFS algorithm results in the minimum average waiting time = "+averageWaitingTimeFirstComeFirstServe);
+    } else {
+        System.out.println("Both algorithms have the same average waiting time.");
+    }
+}
